@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ data.project_name }} - {{ data.version }}</title>
+</head>
+<body>
+    <h1>{{ data.project_name }} ({{ data.version }})</h1>
+    <p><strong>Hosted on:</strong> {{ data.hostname }}</p>
+    <p><strong>Current Date:</strong> {{ data.date }}</p>
+    <p><strong>Author:</strong> {{ data.name }}</p>
+
+    <h2>Last 10 Requests</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>IP Address</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in data.last_records %}
+            <tr>
+                <td>{{ record.ip_address }}</td>
+                <td>{{ record.date }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,50 @@
+---
+apiVersion: apps/v1
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webdb-deployment
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: webdb
+  template:
+    metadata:
+      labels:
+        app: webdb
+    spec:
+      containers:
+      - name: webdb
+        image: {{ .Values.webdb.image.repository }}:{{ .Values.webdb.image.tag }}
+        ports:
+        - containerPort: 5000
+        env:
+        - name: MONGO_URI
+          value: "mongodb://mongodb-0.mongodb-service.aboussarsar.svc.cluster.local:27017/"
+        - name: MONGO_DB_NAME
+          value: "flask_with_db"
+        - name: MONGO_COLLECTION_NAME
+          value: "requests"
+        resources:
+          requests:
+            cpu: {{ .Values.webdb.resources.requests.cpu }}
+            memory: {{ .Values.webdb.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.webdb.resources.limits.cpu }}
+            memory: {{ .Values.webdb.resources.limits.memory }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webdb-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: webdb
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000

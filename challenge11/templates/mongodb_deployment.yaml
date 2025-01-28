@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-deployment
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: {{ .Values.mongodb.image.repository }}
+        ports:
+        - containerPort: 27017
+        resources:
+          requests:
+            cpu: {{ .Values.mongodb.resources.requests.cpu }}
+            memory: {{ .Values.mongodb.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.mongodb.resources.limits.cpu }}
+            memory: {{ .Values.mongodb.resources.limits.memory }}
+        #env:
+        #- name: MONGO_INITDB_ROOT_USERNAME
+        #  value: "root"       # MongoDB root username
+        #- name: MONGO_INITDB_ROOT_PASSWORD
+        #  value: "example"    # MongoDB root password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: mongodb
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017

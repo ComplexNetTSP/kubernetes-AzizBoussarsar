@@ -1,0 +1,9 @@
+kubectl create namespace my-namespace
+
+kubectl create deployment webnodb --image=webnodb --namespace=my-namespace
+
+kubectl get deployments -o wide --namespace=my-namespace
+kubectl get pods -o wide --namespace=my-namespace
+
+# Replace <pod-name> with the actual pod name from previous output:
+kubectl port-forward pods/<pod-name> 54127:5000 --namespace=my-namespace
