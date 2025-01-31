@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webnodb-deployment
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: webnodb
+  template:
+    metadata:
+      labels:
+        app: webnodb
+    spec:
+      containers:
+      - name: webnodb
+        image: {{ .Values.webnodb.image.repository }}:{{ .Values.webnodb.image.tag }}
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: {{ .Values.webnodb.resources.requests.cpu }}
+            memory: {{ .Values.webnodb.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.webnodb.resources.limits.cpu }}
+            memory: {{ .Values.webnodb.resources.limits.memory }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webnodb-service
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: webnodb
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5000
+

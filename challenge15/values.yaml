@@ -1,0 +1,50 @@
+replicaCount: 1
+
+webnodb:
+  image:
+    repository: azizboussarsar/challenge1
+    tag: "v3"
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "100Mi"
+    limits:
+      cpu: "200m"
+      memory: "200Mi"
+
+webdb:
+  image:
+    repository: azizboussarsar/web_with_db
+    tag: "v3"
+  mongo:
+    hostname: mongodb-service
+    port: 27017
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "100Mi"
+    limits:
+      cpu: "200m"
+      memory: "200Mi"
+
+mongodb:
+  image:
+    repository: mongo
+    tag: latest
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "100Mi"
+    limits:
+      cpu: "200m"
+      memory: "200Mi"
+  replicaCount: 1
+  storage:
+    size: 0.1Gi
+
+ingress:
+  enabled: true
+  hostnames:
+    - webnodb.aboussarsar.net4255.luxbulb.org
+    - webdb.aboussarsar.net4255.luxbulb.org
+  annotations: {}
