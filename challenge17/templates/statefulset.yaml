@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: mongodb
+spec:
+  serviceName: {{ .Values.service.name }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: {{ .Values.mongodb.image }}
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              mongod --replSet rs0 --bind_ip_all &
+              sleep 100
+              if mongosh --host mongodb-0.mongodb-service:27017 --eval "rs.status()" | grep -q "not yet initialized"; then
+                mongosh --host mongodb-0.mongodb-service:27017 <<EOF
+                rs.initiate({
+                  _id: "rs0",
+                  members: [
+                    { _id: 0, host: "mongodb-0.mongodb-service:27017" },
+                    { _id: 1, host: "mongodb-1.mongodb-service:27017" },
+                    { _id: 2, host: "mongodb-2.mongodb-service:27017" }
+                  ]
+                })
+                EOF
+              fi
+              wait
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongodb-data
+              mountPath: /data/db
+          resources:
+            requests:
+              cpu: {{ .Values.mongodb.resources.requests.cpu }}
+              memory: {{ .Values.mongodb.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.mongodb.resources.limits.cpu }}
+              memory: {{ .Values.mongodb.resources.limits.memory }}
+  volumeClaimTemplates:
+    - metadata:
+        name: mongodb-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 0.3Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.name }}
+spec:
+  clusterIP: None
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 27017
+  selector:
+    app: mongodb
+

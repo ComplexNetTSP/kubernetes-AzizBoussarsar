@@ -1,0 +1,19 @@
+replicaCount: 3
+
+mongodb:
+  image: mongo:4.4
+  replicaSetName: rs0
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "200Mi"
+    limits:
+      cpu: "500m"
+      memory: "500Mi"
+
+storage:
+  size: 0.3Gi
+
+service:
+  name: mongodb-service
+  port: 27017
